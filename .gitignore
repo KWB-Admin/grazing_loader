@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+data_dump/
+loaded_data/
+log/
+yaml/
