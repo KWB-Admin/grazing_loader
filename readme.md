@@ -1,21 +1,24 @@
 # Description
 
-This is an ETL pipeline for taking `metro` water depth data for monitoring wells and loading it into the KWB data warehouse.
+This is an ETL pipeline for taking `grazing` data for land managment and loading it into the KWB data warehouse.
 
-Once data is downloaded from `metro` in `.csv` format, the files are dumped in the `data_dump` folder. From here, the ETL is ran following morning via Task Scheduler and the Power Shell script.
+Once data is downloaded from pdf's sent by Jim Jones or another associate, these are saved in the `data_dump` folder and then processed for loading. As these are pdfs, this is done via ocr and Tesseract.
 
 # Requirements
 
-Currently this relies on one package, `kwb_loader`, which will install three dependies:
+This software relies on these dependies:
 
 1. `psychopg2`
 2. `polars`
 3. `numpy`
+4. `PyYAML`
+5. `requests`
+6. `img2table`
 
 Please see the requirements.txt file for specific versions.
 
 # Operations
 
-Data from `metro` contains Delivery data which we don't care about for the monitoring wells. To get around this, the file is read and everything past a line containing the word 'Delivery' is thrown out. From there, the date is added to the data for meta data purposes, the columns are renamed, and rows with no values in the measurement column are dropped. 
+Grazing data is delievered via pdf. Although this could be sent as a spreadsheet, pdf seems to be preferred from Jim Jones as it renders a report. 
 
-The data is then written as a `.parquet` file and loaded into the database.
+After processing via Tesseract, relevant data is extracted from the resulting table and table headers, as well as cleaned in terms of grazing area name.
