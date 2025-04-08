@@ -175,10 +175,13 @@ def build_load_query(data: ndarray, etl_yaml: dict) -> pg.sql.Composed:
     """
     col_names = sql.SQL(", ").join(sql.Identifier(col) for col in etl_yaml["db_schema"])
     values = sql.SQL(" , ").join(sql.Literal(val) for val in data)
+    update_cols = sql.SQL(" , ").join(
+        sql.SQL(f"{col} = Excluded.{col}") for col in etl_yaml["update_cols"]
+    )
     return sql.SQL(
         """
         INSERT INTO {schema_name}.{table} ({col_names}) VALUES ({values})
-        ON CONFLICT ({prim_key}) DO UPDATE SET {update_col} = Excluded.{update_col}, edited_on = current_timestamp;
+        ON CONFLICT ({prim_key}) DO UPDATE SET {update_cols}, edited_on = current_timestamp;
         """
     ).format(
         schema_name=sql.Identifier(etl_yaml["schema_name"]),
@@ -186,7 +189,7 @@ def build_load_query(data: ndarray, etl_yaml: dict) -> pg.sql.Composed:
         col_names=col_names,
         values=values,
         prim_key=sql.SQL(etl_yaml["prim_key"]),
-        update_col=sql.Identifier(etl_yaml["update_col"]),
+        update_cols=update_cols,
     )
 
 
